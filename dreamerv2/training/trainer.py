@@ -1,6 +1,7 @@
 import numpy as np
 import torch 
 import torch.optim as optim
+import torch.nn as nn
 import os 
 
 from dreamerv2.utils.module import get_parameters, FreezeParameters
@@ -11,6 +12,27 @@ from dreamerv2.models.dense import DenseModel
 from dreamerv2.models.rssm import RSSM
 from dreamerv2.models.pixel import ObsDecoder, ObsEncoder
 from dreamerv2.utils.buffer import TransitionBuffer
+
+
+class _CustomDataParallel(nn.Module):
+    def __init__(self, model, device):
+        super(_CustomDataParallel, self).__init__()
+        self.device = device
+        if device.type == 'cpu':
+            self.model = model
+        else:
+            self.model = nn.DataParallel(model).cuda()
+
+    def forward(self, *input):
+        return self.model(*input)
+
+    def __getattr__(self, name):
+        try:
+            return super().__getattr__(name)
+        except AttributeError:
+            if self.device.type == 'cpu':
+                return getattr(self.model, name)
+            return getattr(self.model.module, name)
 
 class Trainer(object):
     def __init__(
@@ -289,21 +311,21 @@ class Trainer(object):
         modelstate_size = stoch_size + deter_size 
     
         self.buffer = TransitionBuffer(config.capacity, obs_shape, action_size, config.seq_len, config.batch_size, config.obs_dtype, config.action_dtype)
-        self.RSSM = RSSM(action_size, rssm_node_size, embedding_size, self.device, config.rssm_type, config.rssm_info).to(self.device)
-        self.ActionModel = DiscreteActionModel(action_size, deter_size, stoch_size, embedding_size, config.actor, config.expl).to(self.device)
-        self.RewardDecoder = DenseModel((1,), modelstate_size, config.reward).to(self.device)
-        self.ValueModel = DenseModel((1,), modelstate_size, config.critic).to(self.device)
-        self.TargetValueModel = DenseModel((1,), modelstate_size, config.critic).to(self.device)
+        self.RSSM = _CustomDataParallel(RSSM(action_size, rssm_node_size, embedding_size, self.device, config.rssm_type, config.rssm_info), self.device).to(self.device)
+        self.ActionModel = _CustomDataParallel(DiscreteActionModel(action_size, deter_size, stoch_size, embedding_size, config.actor, config.expl), self.device).to(self.device)
+        self.RewardDecoder = _CustomDataParallel(DenseModel((1,), modelstate_size, config.reward), self.device).to(self.device)
+        self.ValueModel = _CustomDataParallel(DenseModel((1,), modelstate_size, config.critic), self.device).to(self.device)
+        self.TargetValueModel = _CustomDataParallel(DenseModel((1,), modelstate_size, config.critic), self.device).to(self.device)
         self.TargetValueModel.load_state_dict(self.ValueModel.state_dict())
         
         if config.discount['use']:
-            self.DiscountModel = DenseModel((1,), modelstate_size, config.discount).to(self.device)
+            self.DiscountModel = _CustomDataParallel(DenseModel((1,), modelstate_size, config.discount), self.device).to(self.device)
         if config.pixel:
-            self.ObsEncoder = ObsEncoder(obs_shape, embedding_size, config.obs_encoder).to(self.device)
-            self.ObsDecoder = ObsDecoder(obs_shape, modelstate_size, config.obs_decoder).to(self.device)
+            self.ObsEncoder = _CustomDataParallel(ObsEncoder(obs_shape, embedding_size, config.obs_encoder), self.device).to(self.device)
+            self.ObsDecoder = _CustomDataParallel(ObsDecoder(obs_shape, modelstate_size, config.obs_decoder), self.device).to(self.device)
         else:
-            self.ObsEncoder = DenseModel((embedding_size,), int(np.prod(obs_shape)), config.obs_encoder).to(self.device)
-            self.ObsDecoder = DenseModel(obs_shape, modelstate_size, config.obs_decoder).to(self.device)
+            self.ObsEncoder = _CustomDataParallel(DenseModel((embedding_size,), int(np.prod(obs_shape)), config.obs_encoder), self.device).to(self.device)
+            self.ObsDecoder = _CustomDataParallel(DenseModel(obs_shape, modelstate_size, config.obs_decoder), self.device).to(self.device)
 
     def _optim_initialize(self, config):
         model_lr = config.lr['model']

@@ -60,7 +60,10 @@ class crafterPOMDP(gym.ObservationWrapper):
         self.observation_space = gym.spaces.MultiBinary((c, h, w))
 
     def observation(self, observation):
-        return np.stack([observation[0], observation[1], observation[2]], axis=0)
+        print(observation.shape)
+        res = np.stack([observation[0], observation[1], observation[2]], axis=0)
+        print(res.shape)
+        exit(1)
 
 
 class asterixPOMDP(gym.ObservationWrapper):
