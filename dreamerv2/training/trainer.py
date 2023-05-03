@@ -21,7 +21,7 @@ class _CustomDataParallel(nn.Module):
         if device.type == 'cpu':
             self.model = model
         else:
-            self.model = nn.DataParallel(model).cuda()
+            self.model = nn.parallel.DistributedDataParallel(model).cuda()
 
     def forward(self, *input):
         return self.model(*input)
