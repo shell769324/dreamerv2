@@ -37,6 +37,7 @@ def cleanup():
 
 def main(rank, world_size, args):
     setup(rank, world_size)
+    torch.cuda.set_device(rank)
     env_name = args.env
     exp_id = args.id + '_pomdp'
 
