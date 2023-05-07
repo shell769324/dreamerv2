@@ -22,7 +22,7 @@ class _CustomDataParallel(nn.Module):
             self.model = model
         else:
             self.model = nn.parallel.DistributedDataParallel(model, device_ids=[device.index], output_device=device.index,
-                                                             find_unused_parameters=True)
+                                                             find_unused_parameters=False)
 
     def forward(self, *input):
         return self.model(*input)
