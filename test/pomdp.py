@@ -37,8 +37,6 @@ def cleanup():
 
 def main(rank, world_size, args):
     setup(rank, world_size)
-
-    wandb.login()
     env_name = args.env
     exp_id = args.id + '_pomdp'
 
@@ -232,6 +230,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu_count', type=int, default=4, help='Number of GPUs')
     args = parser.parse_args()
     world_size = args.gpu_count
+    wandb.login()
     mp.spawn(
         main,
         args=(world_size, args),
