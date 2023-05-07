@@ -21,7 +21,7 @@ class _CustomDataParallel(nn.Module):
         if device.type == 'cpu':
             self.model = model
         else:
-            self.model = nn.parallel.DistributedDataParallel(model).cuda()
+            self.model = nn.parallel.DistributedDataParallel(model, device_ids=[device.index], output_device=device.index)
 
     def forward(self, *input):
         return self.model(*input)
@@ -272,7 +272,7 @@ class Trainer(object):
     def save_model(self, iter):
         save_dict = self.get_save_dict()
         model_dir = self.config.model_dir
-        save_path = os.path.join(model_dir, 'models_%d.pth' % iter)
+        save_path = os.path.join(model_dir, 'models_{}_{}.pth'.format(self.device.index, iter))
         torch.save(save_dict, save_path)
 
     def get_save_dict(self):
