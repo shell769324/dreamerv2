@@ -35,10 +35,10 @@ class CrafterConfig():
 
     # latent space desc
     rssm_type: str = 'discrete'
-    embedding_size: int = 1024
-    rssm_node_size: int = 1024
+    embedding_size: int = 350
+    rssm_node_size: int = 350
     rssm_info: Dict = field(
-        default_factory=lambda: {'deter_size': 1024, 'stoch_size': 20, 'class_size': 32, 'category_size': 32,
+        default_factory=lambda: {'deter_size': 350, 'stoch_size': 32, 'class_size': 32, 'category_size': 32,
                                  'min_std': 0.1})
 
     # objective desc
