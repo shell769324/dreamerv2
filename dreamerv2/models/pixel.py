@@ -107,7 +107,7 @@ def conv_out(h_in, padding, kernel_size, stride):
     return int((h_in + 2. * padding - (kernel_size - 1.) - 1.) / stride + 1.)
 
 def conv_in(h_out, padding, kernel_size, stride):
-    return (h_out - 1.) * stride + 1. + (kernel_size - 1) - 2. * padding
+    return int((h_out - 1.) * stride + 1. + (kernel_size - 1) - 2. * padding)
 
 def output_padding(h_in, conv_out, padding, kernel_size, stride):
     return h_in - (conv_out - 1) * stride + 2 * padding - (kernel_size - 1) - 1
