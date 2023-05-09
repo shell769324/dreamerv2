@@ -18,14 +18,11 @@ class ObsEncoder(nn.Module):
         k  = info['kernel']
         self.k = k
         self.d = d
-        self.convolutions = nn.Sequential(
-            nn.Conv2d(input_shape[0], d, k),
-            activation(),
-            nn.Conv2d(d, 2*d, k),
-            activation(),
-            nn.Conv2d(2*d, 4*d, k),
-            activation(),
-        )
+        self.layers = info['layers']
+        self.convolutions = nn.Sequential()
+        for i in range(self.layers):
+            self.convolutions.add(input_shape[0] if i == 0 else d * (2 ** (i - 1)), d * (2**i), k, 2)
+            self.convolutions.add(activation())
         if embedding_size == self.embed_size:
             self.fc_1 = nn.Identity()
         else:
@@ -40,7 +37,7 @@ class ObsEncoder(nn.Module):
         print("Linear layer size {}".format(param_size - old))
         print("Obs encoder model size {}".format(param_size))
         self.param_size = param_size
-        summary(self.convolutions, (3, 64, 64))
+        summary(self.convolutions.cuda, (3, 64, 64))
 
     def forward(self, obs):
         batch_shape = obs.shape[:-3]
@@ -52,10 +49,10 @@ class ObsEncoder(nn.Module):
 
     @property
     def embed_size(self):
-        conv1_shape = conv_out_shape(self.shape[1:], 0, self.k, 1)
-        conv2_shape = conv_out_shape(conv1_shape, 0, self.k, 1)
-        conv3_shape = conv_out_shape(conv2_shape, 0, self.k, 1)
-        embed_size = int(4*self.d*np.prod(conv3_shape).item())
+        shape = self.shape[1:]
+        for i in range(self.layers):
+            shape = conv_out_shape(shape, 0, self.k, 2)
+        embed_size = int((2**(self.layers - 1))*self.d*np.prod(shape).item())
         return embed_size
 
 class ObsDecoder(nn.Module):
@@ -70,9 +67,13 @@ class ObsDecoder(nn.Module):
         d = info['depth']
         k  = info['kernel']
         conv1_shape = conv_out_shape(output_shape[1:], 0, k, 1)
+        print(conv1_shape)
         conv2_shape = conv_out_shape(conv1_shape, 0, k, 1)
+        print(conv2_shape)
         conv3_shape = conv_out_shape(conv2_shape, 0, k, 1)
+        print(conv3_shape)
         self.conv_shape = (4*d, *conv3_shape)
+        print(self.conv_shape)
         self.output_shape = output_shape
         if embed_size == np.prod(self.conv_shape).item():
             self.linear = nn.Identity()
