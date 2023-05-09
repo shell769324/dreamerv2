@@ -2,6 +2,7 @@ import minatar
 import gym
 import numpy as np
 import crafter
+import gym.spaces.discrete
 BoxSpace = gym.spaces.Box
 
 class GymCrafter(gym.Env):
@@ -15,6 +16,7 @@ class GymCrafter(gym.Env):
             save_video=False,
             save_episode=False,
         )
+        self.action_space = gym.spaces.Discrete(17)
         self.observation_space = BoxSpace(0, 255, (3, 64, 64), np.uint8)
 
     def reset(self):
