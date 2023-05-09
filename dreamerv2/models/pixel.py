@@ -80,7 +80,7 @@ class ObsDecoder(nn.Module):
             output_depth = input_depth // 2
             self.decoder.append(nn.ConvTranspose2d(input_depth, c if i == 0 else output_depth, k, 2))
             if i != 0:
-                self.decoder.add(activation())
+                self.decoder.append(activation())
         param_size = 0
         for param in self.decoder.parameters():
             param_size += param.nelement() * param.element_size()
