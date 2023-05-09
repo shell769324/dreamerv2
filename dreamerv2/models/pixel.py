@@ -37,7 +37,6 @@ class ObsEncoder(nn.Module):
         print("Linear layer size {}".format(param_size - old))
         print("Obs encoder model size {}".format(param_size))
         self.param_size = param_size
-        summary(self.convolutions.cuda, (3, 64, 64))
 
     def forward(self, obs):
         batch_shape = obs.shape[:-3]
