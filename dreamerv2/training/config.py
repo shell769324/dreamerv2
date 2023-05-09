@@ -73,7 +73,7 @@ class CrafterConfig():
                                  'depth': 24})
     obs_decoder: Dict = field(
         default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': 'normal', 'activation': nn.ELU, 'kernel': 5,
-                                 'depth': 24})
+                                 'depth': 96})
     reward: Dict = field(
         default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': 'normal', 'activation': nn.ELU})
     discount: Dict = field(

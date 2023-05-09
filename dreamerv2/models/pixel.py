@@ -74,10 +74,11 @@ class ObsDecoder(nn.Module):
             self.linear = nn.Identity()
         else:
             self.linear = nn.Linear(embed_size, np.prod(self.conv_shape).item())
+        self.decoder = nn.Sequential()
         for i in range(self.layers - 1, -1, -1):
             input_depth = (2 ** i) * d
             output_depth = input_depth / 2
-            self.decoder.add(nn.ConvTranspose2d(input_depth, c if i == 0 else output_depth, k, 2))
+            self.decoder.append(nn.ConvTranspose2d(input_depth, c if i == 0 else output_depth, k, 2))
             if i != 0:
                 self.decoder.add(activation())
         param_size = 0
