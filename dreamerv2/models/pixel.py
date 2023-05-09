@@ -90,7 +90,7 @@ class ObsDecoder(nn.Module):
         shape = output_shape[1:]
         print(shape)
         for i in range(self.layers):
-            shape = conv_in_shape(shape, 0, self.k, 2)
+            shape = conv_out_shape(shape, 0, self.k, 2)
             print(shape)
         self.conv_shape = (2 ** (self.layers - 1) * self.d, *shape)
         print(self.conv_shape)
