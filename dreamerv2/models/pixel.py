@@ -65,11 +65,11 @@ class ObsDecoder(nn.Module):
         activation = info['activation']
         d = info['depth']
         k  = info['kernel']
-        conv1_shape = conv_out_shape(output_shape[1:], 0, k, 1)
+        conv1_shape = conv_in_shape(output_shape[1:], 0, k, 1)
         print(conv1_shape)
-        conv2_shape = conv_out_shape(conv1_shape, 0, k, 1)
+        conv2_shape = conv_in_shape(conv1_shape, 0, k, 1)
         print(conv2_shape)
-        conv3_shape = conv_out_shape(conv2_shape, 0, k, 1)
+        conv3_shape = conv_in_shape(conv2_shape, 0, k, 1)
         print(conv3_shape)
         self.conv_shape = (4*d, *conv3_shape)
         print(self.conv_shape)
@@ -106,11 +106,17 @@ class ObsDecoder(nn.Module):
 def conv_out(h_in, padding, kernel_size, stride):
     return int((h_in + 2. * padding - (kernel_size - 1.) - 1.) / stride + 1.)
 
+def conv_in(h_out, padding, kernel_size, stride):
+    return (h_out - 1.) * stride + 1. + (kernel_size - 1) - 2. * padding
+
 def output_padding(h_in, conv_out, padding, kernel_size, stride):
     return h_in - (conv_out - 1) * stride + 2 * padding - (kernel_size - 1) - 1
 
 def conv_out_shape(h_in, padding, kernel_size, stride):
     return tuple(conv_out(x, padding, kernel_size, stride) for x in h_in)
+
+def conv_in_shape(h_out, padding, kernel_size, stride):
+    return tuple(conv_in(x, padding, kernel_size, stride) for x in h_out)
 
 def output_padding_shape(h_in, conv_out, padding, kernel_size, stride):
     return tuple(output_padding(h_in[i], conv_out[i], padding, kernel_size, stride) for i in range(len(h_in)))
