@@ -63,7 +63,6 @@ def main(rank, world_size, args):
         env = PomdpWrapper(OneHotAction(GymMinAtar(env_name)))
     obs_shape = env.observation_space.shape
     action_size = env.action_space.shape[0]
-    obs_dtype = bool
     action_dtype = np.float32
     batch_size = args.batch_size
     seq_len = args.seq_len
@@ -72,7 +71,6 @@ def main(rank, world_size, args):
             env=env_name,
             obs_shape=obs_shape,
             action_size=action_size,
-            obs_dtype=obs_dtype,
             action_dtype=action_dtype,
             seq_len=seq_len,
             batch_size=batch_size,
@@ -83,7 +81,7 @@ def main(rank, world_size, args):
             env=env_name,
             obs_shape=obs_shape,
             action_size=action_size,
-            obs_dtype=obs_dtype,
+            obs_dtype=bool,
             action_dtype=action_dtype,
             seq_len=seq_len,
             batch_size=batch_size,
