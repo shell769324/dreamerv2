@@ -24,7 +24,22 @@ class RSSM(nn.Module, RSSMUtils):
         self.fc_embed_state_action = self._build_embed_state_action()
         self.fc_prior = self._build_temporal_prior()
         self.fc_posterior = self._build_temporal_posterior()
-    
+
+        param_size = 0
+        for param in self.rnn.parameters():
+            param_size += param.nelement() * param.element_size()
+        for param in self.fc_prior.parameters():
+            param_size += param.nelement() * param.element_size()
+        for param in self.fc_posterior.parameters():
+            param_size += param.nelement() * param.element_size()
+        for param in self.fc_embed_state_action.parameters():
+            param_size += param.nelement() * param.element_size()
+        print("RSSM total size {}".format(param_size))
+        self.param_size = param_size
+
+    def get_size(self):
+        return self.param_size
+
     def _build_embed_state_action(self):
         """
         model is supposed to take in previous stochastic state and previous action 

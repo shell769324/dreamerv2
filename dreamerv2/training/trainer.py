@@ -310,7 +310,7 @@ class Trainer(object):
         embedding_size = config.embedding_size
         rssm_node_size = config.rssm_node_size
         modelstate_size = stoch_size + deter_size 
-    
+
         self.buffer = TransitionBuffer(config.capacity, obs_shape, action_size, config.seq_len, config.batch_size, config.obs_dtype, config.action_dtype)
         self.RSSM = _CustomDataParallel(RSSM(action_size, rssm_node_size, embedding_size, self.device, config.rssm_type, config.rssm_info).to(self.device), self.device)
         self.ActionModel = _CustomDataParallel(DiscreteActionModel(action_size, deter_size, stoch_size, embedding_size, config.actor, config.expl).to(self.device), self.device)
@@ -318,6 +318,8 @@ class Trainer(object):
         self.ValueModel = _CustomDataParallel(DenseModel((1,), modelstate_size, config.critic).to(self.device), self.device)
         self.TargetValueModel = _CustomDataParallel(DenseModel((1,), modelstate_size, config.critic).to(self.device), self.device)
         self.TargetValueModel.load_state_dict(self.ValueModel.state_dict())
+        model_size = self.RSSM.param_size + self.ActionModel.param_size + self.RewardDecoder.param_size + self.ValueModel.param_size + self.TargetValueModel.param_size
+        print(model_size)
         
         if config.discount['use']:
             self.DiscountModel = _CustomDataParallel(DenseModel((1,), modelstate_size, config.discount).to(self.device), self.device)

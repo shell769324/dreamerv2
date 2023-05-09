@@ -28,6 +28,14 @@ class DiscreteActionModel(nn.Module):
         self.expl_decay = expl_info['expl_decay']
         self.expl_type = expl_info['expl_type']
         self.model = self._build_model()
+        param_size = 0
+        for param in self.rnn.parameters():
+            param_size += param.nelement() * param.element_size()
+        print("Actor model size {}".format(param_size))
+        self.param_size = param_size
+
+    def get_size(self):
+        return self.param_size
 
     def _build_model(self):
         model = [nn.Linear(self.deter_size + self.stoch_size, self.node_size)]

@@ -22,6 +22,11 @@ class DenseModel(nn.Module):
         self.activation = info['activation']
         self.dist = info['dist']
         self.model = self.build_model()
+        param_size = 0
+        for param in self.rnn.parameters():
+            param_size += param.nelement() * param.element_size()
+        print("Dense model size {}".format(param_size))
+        self.param_size = param_size
 
     def build_model(self):
         model = [nn.Linear(self._input_size, self._node_size)]
