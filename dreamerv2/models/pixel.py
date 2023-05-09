@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.distributions as td
 import torch.nn as nn
+from torchsummary import summary
 
 
 class ObsEncoder(nn.Module):
@@ -32,10 +33,14 @@ class ObsEncoder(nn.Module):
         param_size = 0
         for param in self.convolutions.parameters():
             param_size += param.nelement() * param.element_size()
+        print("Obs encoder embedding size {}".format(self.embed_size))
+        old = param_size
         for param in self.fc_1.parameters():
             param_size += param.nelement() * param.element_size()
+        print("Linear layer size {}".format(param_size - old))
         print("Obs encoder model size {}".format(param_size))
         self.param_size = param_size
+        summary(self.convolutions, (3, 64, 64))
 
     def forward(self, obs):
         batch_shape = obs.shape[:-3]
