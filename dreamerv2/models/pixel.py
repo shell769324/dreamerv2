@@ -21,8 +21,8 @@ class ObsEncoder(nn.Module):
         self.layers = info['layers']
         self.convolutions = nn.Sequential()
         for i in range(self.layers):
-            self.convolutions.add(input_shape[0] if i == 0 else d * (2 ** (i - 1)), d * (2**i), k, 2)
-            self.convolutions.add(activation())
+            self.convolutions.append(input_shape[0] if i == 0 else d * (2 ** (i - 1)), d * (2**i), k, 2)
+            self.convolutions.append(activation())
         if embedding_size == self.embed_size:
             self.fc_1 = nn.Identity()
         else:
