@@ -1,7 +1,28 @@
 import minatar
 import gym
 import numpy as np
+import crafter
+BoxSpace = gym.spaces.Box
 
+class GymCrafter(gym.Env):
+    metadata = {'render.modes': ['human', 'rgb_array']}
+
+    def __init__(self):
+        self.env = crafter.Env(reward=True)
+        self.env = crafter.Recorder(
+            self.env, './stats',
+            save_stats=True,
+            save_video=False,
+            save_episode=False,
+        )
+        self.observation_space = BoxSpace(0, 255, (3, 64, 64), np.uint8)
+
+    def reset(self):
+        return self.env.reset().transpose(2, 0, 1)
+
+    def step(self, index):
+        obs, reward, done, info = self.env.step(index)
+        return obs.transpose(2, 0, 1), reward, done, info
 
 class GymMinAtar(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
@@ -54,10 +75,8 @@ class breakoutPOMDP(gym.ObservationWrapper):
 
 class crafterPOMDP(gym.ObservationWrapper):
     def __init__(self, env):
-        '''index 2 (trail) is removed, which gives ball's direction'''
         super(crafterPOMDP, self).__init__(env)
-        h, w, c = env.observation_space.shape
-        self.observation_space = gym.spaces.MultiBinary((c, h, w))
+        self.observation_space = BoxSpace(0, 255, (3, 64, 64), np.uint8)
 
     def observation(self, observation):
         return np.stack([observation[0], observation[1], observation[2]], axis=0)

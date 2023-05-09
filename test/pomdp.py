@@ -5,7 +5,7 @@ import torch
 import numpy as np
 import gym
 from dreamerv2.utils.wrapper import GymMinAtar, OneHotAction, breakoutPOMDP, space_invadersPOMDP, seaquestPOMDP, \
-    asterixPOMDP, freewayPOMDP, crafterPOMDP
+    asterixPOMDP, freewayPOMDP, crafterPOMDP, GymCrafter
 from dreamerv2.utils.myWrapper import Recorder
 from dreamerv2.training.config import MinAtarConfig, CrafterConfig
 from dreamerv2.training.trainer import Trainer
@@ -57,9 +57,7 @@ def main(rank, world_size, args):
 
     PomdpWrapper = pomdp_wrappers[env_name]
     if env_name == "crafter":
-        env = gym.make('CrafterReward-v1')  # Or CrafterNoReward-v1
-        env = Recorder(
-            env, './path/to/logdir')
+        env = GymCrafter()
         env = PomdpWrapper(OneHotAction(env))
     else:
         env = PomdpWrapper(OneHotAction(GymMinAtar(env_name)))
