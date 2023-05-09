@@ -84,6 +84,8 @@ class ObsDecoder(nn.Module):
         param_size = 0
         for param in self.decoder.parameters():
             param_size += param.nelement() * param.element_size()
+        for param in self.linear.parameters():
+            param_size += param.nelement() * param.element_size()
         print("Obs decoder model size {}".format(param_size))
         self.param_size = param_size
 

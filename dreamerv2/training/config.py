@@ -35,10 +35,10 @@ class CrafterConfig():
 
     # latent space desc
     rssm_type: str = 'discrete'
-    embedding_size: int = 350
-    rssm_node_size: int = 350
+    embedding_size: int = 512
+    rssm_node_size: int = 512
     rssm_info: Dict = field(
-        default_factory=lambda: {'deter_size': 350, 'stoch_size': 32, 'class_size': 32, 'category_size': 32,
+        default_factory=lambda: {'deter_size': 512, 'stoch_size': 32, 'class_size': 32, 'category_size': 32,
                                  'min_std': 0.1})
 
     # objective desc
@@ -73,7 +73,7 @@ class CrafterConfig():
                                  'depth': 24})
     obs_decoder: Dict = field(
         default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': 'normal', 'activation': nn.ELU, 'kernel': 5,
-                                 'depth': 96})
+                                 'depth': 48})
     reward: Dict = field(
         default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': 'normal', 'activation': nn.ELU})
     discount: Dict = field(
