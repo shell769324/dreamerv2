@@ -23,7 +23,7 @@ class DenseModel(nn.Module):
         self.dist = info['dist']
         self.model = self.build_model()
         param_size = 0
-        for param in self.rnn.parameters():
+        for param in self.model.parameters():
             param_size += param.nelement() * param.element_size()
         print("Dense model size {}".format(param_size))
         self.param_size = param_size
