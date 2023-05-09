@@ -33,7 +33,7 @@ class ObsEncoder(nn.Module):
         param_size = 0
         for param in self.convolutions.parameters():
             param_size += param.nelement() * param.element_size()
-        print("Obs encoder embedding size {}".format(self.embed_size))
+        print("Obs encoder embedding size {} {}".format(embedding_size, self.embed_size))
         old = param_size
         for param in self.fc_1.parameters():
             param_size += param.nelement() * param.element_size()
