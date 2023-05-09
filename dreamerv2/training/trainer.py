@@ -319,16 +319,18 @@ class Trainer(object):
         self.TargetValueModel = _CustomDataParallel(DenseModel((1,), modelstate_size, config.critic).to(self.device), self.device)
         self.TargetValueModel.load_state_dict(self.ValueModel.state_dict())
         model_size = self.RSSM.param_size + self.ActionModel.param_size + self.RewardDecoder.param_size + self.ValueModel.param_size + self.TargetValueModel.param_size
-        print(model_size)
         
         if config.discount['use']:
             self.DiscountModel = _CustomDataParallel(DenseModel((1,), modelstate_size, config.discount).to(self.device), self.device)
+            model_size += self.DiscountModel.param_size
         if config.pixel:
             self.ObsEncoder = _CustomDataParallel(ObsEncoder(obs_shape, embedding_size, config.obs_encoder).to(self.device), self.device)
             self.ObsDecoder = _CustomDataParallel(ObsDecoder(obs_shape, modelstate_size, config.obs_decoder).to(self.device), self.device)
         else:
             self.ObsEncoder = _CustomDataParallel(DenseModel((embedding_size,), int(np.prod(obs_shape)), config.obs_encoder).to(self.device), self.device)
             self.ObsDecoder = _CustomDataParallel(DenseModel(obs_shape, modelstate_size, config.obs_decoder).to(self.device), self.device)
+        model_size += self.ObsEncoder.param_size + self.ObsDecoder.param_size
+        print("Model size {}".format(model_size))
 
     def _optim_initialize(self, config):
         model_lr = config.lr['model']

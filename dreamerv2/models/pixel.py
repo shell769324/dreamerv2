@@ -29,6 +29,13 @@ class ObsEncoder(nn.Module):
             self.fc_1 = nn.Identity()
         else:
             self.fc_1 = nn.Linear(self.embed_size, embedding_size)
+        param_size = 0
+        for param in self.convolutions.parameters():
+            param_size += param.nelement() * param.element_size()
+        for param in self.fc_1.parameters():
+            param_size += param.nelement() * param.element_size()
+        print("Obs encoder model size {}".format(param_size))
+        self.param_size = param_size
 
     def forward(self, obs):
         batch_shape = obs.shape[:-3]
@@ -73,6 +80,11 @@ class ObsDecoder(nn.Module):
             activation(),
             nn.ConvTranspose2d(d, c, k, 1),
         )
+        param_size = 0
+        for param in self.decoder.parameters():
+            param_size += param.nelement() * param.element_size()
+        print("Obs decoder model size {}".format(param_size))
+        self.param_size = param_size
 
     def forward(self, x):
         batch_shape = x.shape[:-1]
