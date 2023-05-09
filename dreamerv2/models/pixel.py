@@ -65,31 +65,32 @@ class ObsDecoder(nn.Module):
         activation = info['activation']
         d = info['depth']
         k  = info['kernel']
-        conv1_shape = conv_in_shape(output_shape[1:], 0, k, 1)
-        print(conv1_shape)
-        conv2_shape = conv_in_shape(conv1_shape, 0, k, 1)
-        print(conv2_shape)
-        conv3_shape = conv_in_shape(conv2_shape, 0, k, 1)
-        print(conv3_shape)
-        self.conv_shape = (4*d, *conv3_shape)
-        print(self.conv_shape)
+        self.d = d
+        self.k = k
+        self.layers = info['layers']
         self.output_shape = output_shape
+        self.calculate_conv_shape(output_shape)
         if embed_size == np.prod(self.conv_shape).item():
             self.linear = nn.Identity()
         else:
             self.linear = nn.Linear(embed_size, np.prod(self.conv_shape).item())
-        self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(4*d, 2*d, k, 1),
-            activation(),
-            nn.ConvTranspose2d(2*d, d, k, 1),
-            activation(),
-            nn.ConvTranspose2d(d, c, k, 1),
-        )
+        for i in range(self.layers - 1, -1, -1):
+            input_depth = (2 ** i) * d
+            output_depth = input_depth / 2
+            self.decoder.add(nn.ConvTranspose2d(input_depth, c if i == 0 else output_depth, k, 2))
+            if i != 0:
+                self.decoder.add(activation())
         param_size = 0
         for param in self.decoder.parameters():
             param_size += param.nelement() * param.element_size()
         print("Obs decoder model size {}".format(param_size))
         self.param_size = param_size
+
+    def calculate_conv_shape(self, output_shape):
+        shape = output_shape[1:]
+        for i in range(self.layers):
+            shape = conv_in_shape(shape, 0, self.k, 2)
+        self.conv_shape = (2 ** (self.layers - 1) * self.d, *shape)
 
     def forward(self, x):
         batch_shape = x.shape[:-1]
