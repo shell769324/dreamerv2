@@ -234,9 +234,6 @@ class Trainer(object):
             
     def _obs_loss(self, obs_dist, obs):
         print("obs", obs[0][0][0])
-        print("obs dist", obs_dist[0][0][0])
-        import time
-        time.sleep(1)
         exit(1)
         obs_loss = -torch.mean(obs_dist.log_prob(obs))
         return obs_loss
