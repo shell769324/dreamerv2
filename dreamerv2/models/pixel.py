@@ -102,14 +102,14 @@ class ObsDecoder(nn.Module):
         print(self.conv_shape)
 
     def forward(self, x):
-        print("x shape" + x.shape)
+        print("x shape", x.shape)
         batch_shape = x.shape[:-1]
         embed_size = x.shape[-1]
         squeezed_size = np.prod(batch_shape).item()
         x = x.reshape(squeezed_size, embed_size)
-        print("x reshape shape" + x.shape)
+        print("x reshape shape", x.shape)
         x = self.linear(x)
-        print("x linear shape" + x.shape)
+        print("x linear shape", x.shape)
         x = torch.reshape(x, (squeezed_size, *self.conv_shape))
         x = self.decoder(x)
         mean = torch.reshape(x, (*batch_shape, *self.output_shape))
