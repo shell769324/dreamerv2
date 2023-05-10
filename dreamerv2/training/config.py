@@ -24,7 +24,7 @@ class CrafterConfig():
     train_steps: int = int(5e6)
     train_every: int = 5  # reduce this to potentially improve sample requirements
     collect_intervals: int = 5
-    batch_size: int = 12
+    batch_size: int = 16
     seq_len: int = 50
     eval_episode: int = 4
     eval_render: bool = True
@@ -46,7 +46,7 @@ class CrafterConfig():
     discount_: float = 0.999
     lambda_: float = 0.95
     horizon: int = 15
-    lr: Dict = field(default_factory=lambda: {'model': 1e-4, 'actor': 1e-4, 'critic': 1e-4})
+    lr: Dict = field(default_factory=lambda: {'model': 1e-4, 'actor': 3e-5, 'critic': 3e-5})
     loss_scale: Dict = field(default_factory=lambda: {'kl': 0.1, 'reward': 1.0, 'discount': 5.0})
     kl: Dict = field(default_factory=lambda: {'use_kl_balance': True, 'kl_balance_scale': 0.8, 'use_free_nats': False,
                                               'free_nats': 0.0})
@@ -56,10 +56,10 @@ class CrafterConfig():
 
     # actor critic
     actor: Dict = field(
-        default_factory=lambda: {'layers': 4, 'node_size': 300, 'dist': 'one_hot', 'min_std': 1e-4, 'init_std': 5,
-                                 'mean_scale': 5, 'activation': nn.ELU})
+        default_factory=lambda: {'layers': 3, 'node_size': 512, 'dist': 'one_hot', 'min_std': 1e-4, 'init_std': 5,
+                                 'mean_scale': 5, 'activation': nn.SiLU})
     critic: Dict = field(
-        default_factory=lambda: {'layers': 4, 'node_size': 300, 'dist': 'normal', 'activation': nn.ELU})
+        default_factory=lambda: {'layers': 3, 'node_size': 512, 'dist': 'normal', 'activation': nn.SiLU})
     expl: Dict = field(
         default_factory=lambda: {'train_noise': 0.4, 'eval_noise': 0.0, 'expl_min': 0.05, 'expl_decay': 7000.0,
                                  'expl_type': 'epsilon_greedy'})
@@ -69,10 +69,10 @@ class CrafterConfig():
 
     # learnt world-models desc
     obs_encoder: Dict = field(
-        default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': None, 'activation': nn.ELU, 'kernel': 4,
-                                 'depth': 32})
+        default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': None, 'activation': nn.SiLU, 'kernel': 4,
+                                 'depth': 48})
     obs_decoder: Dict = field(
-        default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': 'normal', 'activation': nn.ELU, 'kernel': 5,
+        default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': 'normal', 'activation': nn.SiLU, 'kernel': 4,
                                  'depth': 48})
     reward: Dict = field(
         default_factory=lambda: {'layers': 4, 'node_size': 200, 'dist': 'normal', 'activation': nn.ELU})
