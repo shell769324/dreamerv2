@@ -87,6 +87,7 @@ class ObsDecoder(nn.Module):
             param_size += param.nelement() * param.element_size()
         print("Obs decoder model size {}".format(param_size))
         self.param_size = param_size
+        self.iter = 0
 
     def calculate_conv_shape(self, output_shape):
         shape = output_shape[1:]
@@ -107,8 +108,9 @@ class ObsDecoder(nn.Module):
         x = torch.reshape(x, (squeezed_size, *self.conv_shape))
         x = self.decoder(x)
         mean = torch.reshape(x, (*batch_shape, *self.output_shape))
-        if np.random.randint(low=0, high=5) == 0:
+        if self.iter % 50 == 0:
             print(mean[0][0][0][0])
+        self.iter += 1
         obs_dist = td.Independent(td.Normal(mean, 1), len(self.output_shape))
         return obs_dist
     
