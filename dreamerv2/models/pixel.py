@@ -75,19 +75,12 @@ class ObsDecoder(nn.Module):
         else:
             self.linear = nn.Linear(embed_size, np.prod(self.conv_shape).item())
         self.decoder = nn.Sequential()
-        temp = 0
         for i in range(self.layers - 1, -1, -1):
             input_depth = (2 ** i) * d
             output_depth = input_depth // 2
-            print("params {} {} {}".format(input_depth, output_depth, k))
             self.decoder.append(nn.ConvTranspose2d(input_depth, c if i == 0 else output_depth, k, 2))
             if i != 0:
                 self.decoder.append(activation())
-            old_temp = temp
-            for param in self.decoder.parameters():
-                temp += param.nelement() * param.element_size()
-                print("{} {}".format(param.nelement(), param.element_size()))
-            print("Decoder conv transpose {} has {}".format(i, temp - old_temp))
         param_size = 0
         for param in self.decoder.parameters():
             param_size += param.nelement() * param.element_size()
@@ -109,11 +102,14 @@ class ObsDecoder(nn.Module):
         print(self.conv_shape)
 
     def forward(self, x):
+        print("x shape" + x.shape)
         batch_shape = x.shape[:-1]
         embed_size = x.shape[-1]
         squeezed_size = np.prod(batch_shape).item()
         x = x.reshape(squeezed_size, embed_size)
+        print("x reshape shape" + x.shape)
         x = self.linear(x)
+        print("x linear shape" + x.shape)
         x = torch.reshape(x, (squeezed_size, *self.conv_shape))
         x = self.decoder(x)
         mean = torch.reshape(x, (*batch_shape, *self.output_shape))
