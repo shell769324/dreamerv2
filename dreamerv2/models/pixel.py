@@ -97,10 +97,10 @@ class ObsDecoder(nn.Module):
     def calculate_conv_shape(self, output_shape):
         shape = output_shape[1:]
         print(shape)
-        k = self.k
+        k = self.k + 1
         for i in range(self.layers):
             if i == 2:
-                k += 1
+                k -= 1
             shape = conv_out_shape(shape, 0, k, 2)
             print(shape)
         self.conv_shape = (2 ** (self.layers - 1) * self.d, *shape)
@@ -125,7 +125,7 @@ class ObsDecoder(nn.Module):
         return obs_dist
     
 def conv_out(h_in, padding, kernel_size, stride):
-    return int((h_in + 2. * padding - (kernel_size - 1.) - 1.) / stride + 1.)
+    return int((h_in + 2. * padding - kernel_size) / stride + 1.)
 
 def conv_in(h_out, padding, kernel_size, stride):
     return int((h_out - 1.) * stride + 1. + (kernel_size - 1) - 2. * padding)
