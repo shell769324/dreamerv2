@@ -86,6 +86,7 @@ class ObsDecoder(nn.Module):
             old_temp = temp
             for param in self.decoder.parameters():
                 temp += param.nelement() * param.element_size()
+                print("{} {}".format(param.nelement(), param.element_size()))
             print("Decoder conv transpose {} has {}".format(i, temp - old_temp))
         param_size = 0
         for param in self.decoder.parameters():
