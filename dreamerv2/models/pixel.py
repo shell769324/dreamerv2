@@ -46,8 +46,10 @@ class ObsEncoder(nn.Module):
     @property
     def embed_size(self):
         shape = self.shape[1:]
+        print("s", shape)
         for i in range(self.layers):
             shape = conv_out_shape(shape, 0, self.k, 2)
+            print("s", shape)
         embed_size = int((2**(self.layers - 1))*self.d*np.prod(shape).item())
         return embed_size
 
