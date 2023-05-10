@@ -57,6 +57,8 @@ class Trainer(object):
         self.actor_entropy_scale = config.actor_entropy_scale
         self.grad_clip_norm = config.grad_clip
 
+        self.iter_iter = 0
+
         self._model_initialize(config)
         self._optim_initialize(config)
 
@@ -89,7 +91,6 @@ class Trainer(object):
         min_targ = []
         max_targ = []
         std_targ = []
-        self.iter_iter = 0
 
         for i in range(self.collect_intervals):
             obs, actions, rewards, terms = self.buffer.sample()
@@ -234,7 +235,7 @@ class Trainer(object):
             
     def _obs_loss(self, obs_dist, obs):
         if self.iter_iter % 200 == 0:
-            print("obs", obs[0][0][0][0])
+            print("obs", self.iter_iter, obs[0][0][0][0])
             self.iter_iter += 1
         obs_loss = -torch.mean(obs_dist.log_prob(obs))
         return obs_loss
