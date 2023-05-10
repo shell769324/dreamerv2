@@ -89,6 +89,7 @@ class Trainer(object):
         min_targ = []
         max_targ = []
         std_targ = []
+        self.iter_iter = 0
 
         for i in range(self.collect_intervals):
             obs, actions, rewards, terms = self.buffer.sample()
@@ -186,7 +187,6 @@ class Trainer(object):
         return actor_loss, value_loss, target_info
 
     def representation_loss(self, obs, actions, rewards, nonterms):
-
         embed = self.ObsEncoder(obs)                                         #t to t+seq_len   
         prev_rssm_state = self.RSSM._init_rssm_state(self.batch_size)
         prior, posterior = self.RSSM.rollout_observation(self.seq_len, embed, actions, nonterms, prev_rssm_state)
@@ -233,6 +233,8 @@ class Trainer(object):
         return value_loss
             
     def _obs_loss(self, obs_dist, obs):
+        if self.iter_iter % 200 == 0:
+            print("obs", obs[0][0][0][0])
         obs_loss = -torch.mean(obs_dist.log_prob(obs))
         return obs_loss
     
