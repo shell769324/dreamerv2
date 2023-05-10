@@ -78,6 +78,8 @@ class ObsDecoder(nn.Module):
         for i in range(self.layers - 1, -1, -1):
             input_depth = (2 ** i) * d
             output_depth = input_depth // 2
+            if i == 1:
+                k += 1
             self.decoder.append(nn.ConvTranspose2d(input_depth, c if i == 0 else output_depth, k, 2))
             if i != 0:
                 self.decoder.append(activation())
@@ -95,8 +97,11 @@ class ObsDecoder(nn.Module):
     def calculate_conv_shape(self, output_shape):
         shape = output_shape[1:]
         print(shape)
+        k = self.k
         for i in range(self.layers):
-            shape = conv_out_shape(shape, 0, self.k, 2)
+            if i == 2:
+                k += 1
+            shape = conv_out_shape(shape, 0, k, 2)
             print(shape)
         self.conv_shape = (2 ** (self.layers - 1) * self.d, *shape)
         print(self.conv_shape)
