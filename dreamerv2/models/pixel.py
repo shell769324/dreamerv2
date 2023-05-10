@@ -111,7 +111,10 @@ class ObsDecoder(nn.Module):
         x = self.linear(x)
         print("x linear shape", x.shape)
         x = torch.reshape(x, (squeezed_size, *self.conv_shape))
+        print("x reshape squeeze shape", x.shape)
         x = self.decoder(x)
+        print("x post decoder shape", x.shape)
+        print((*batch_shape, *self.output_shape))
         mean = torch.reshape(x, (*batch_shape, *self.output_shape))
         obs_dist = td.Independent(td.Normal(mean, 1), len(self.output_shape))
         return obs_dist
