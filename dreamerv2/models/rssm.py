@@ -116,6 +116,7 @@ class RSSM(nn.Module, RSSMUtils):
             posterior_logit = self.fc_posterior(x)
             stats = {'logit':posterior_logit}
             posterior_stoch_state = self.get_stoch_state(stats)
+            print("rssm observe", posterior_logit.shape, posterior_stoch_state.shape, deter_state.shape)
             posterior_rssm_state = RSSMDiscState(posterior_logit, posterior_stoch_state, deter_state)
         
         elif self.rssm_type == 'continuous':

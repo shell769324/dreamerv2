@@ -189,7 +189,6 @@ class Trainer(object):
 
         embed = self.ObsEncoder(obs)                                         #t to t+seq_len   
         prev_rssm_state = self.RSSM._init_rssm_state(self.batch_size)
-        print("prev rssm state shape", prev_rssm_state.shape)
         prior, posterior = self.RSSM.rollout_observation(self.seq_len, embed, actions, nonterms, prev_rssm_state)
         post_modelstate = self.RSSM.get_model_state(posterior)               #t to t+seq_len
         print("post_modelstate shape", post_modelstate.shape)
