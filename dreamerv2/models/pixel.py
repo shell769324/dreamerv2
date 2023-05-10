@@ -30,11 +30,8 @@ class ObsEncoder(nn.Module):
         param_size = 0
         for param in self.convolutions.parameters():
             param_size += param.nelement() * param.element_size()
-        print("Obs encoder embedding size {} {}".format(embedding_size, self.embed_size))
-        old = param_size
         for param in self.fc_1.parameters():
             param_size += param.nelement() * param.element_size()
-        print("Linear layer size {}".format(param_size - old))
         print("Obs encoder model size {}".format(param_size))
         self.param_size = param_size
 
@@ -86,11 +83,8 @@ class ObsDecoder(nn.Module):
         param_size = 0
         for param in self.decoder.parameters():
             param_size += param.nelement() * param.element_size()
-        print("Decoder size {}".format(param_size))
-        old = param_size
         for param in self.linear.parameters():
             param_size += param.nelement() * param.element_size()
-        print("Decoder linear size {}".format(param_size - old))
         print("Obs decoder model size {}".format(param_size))
         self.param_size = param_size
 
@@ -107,19 +101,13 @@ class ObsDecoder(nn.Module):
         print(self.conv_shape)
 
     def forward(self, x):
-        print("x shape", x.shape)
         batch_shape = x.shape[:-1]
         embed_size = x.shape[-1]
         squeezed_size = np.prod(batch_shape).item()
         x = x.reshape(squeezed_size, embed_size)
-        print("x reshape shape", x.shape)
         x = self.linear(x)
-        print("x linear shape", x.shape)
         x = torch.reshape(x, (squeezed_size, *self.conv_shape))
-        print("x reshape squeeze shape", x.shape)
         x = self.decoder(x)
-        print("x post decoder shape", x.shape)
-        print((*batch_shape, *self.output_shape))
         mean = torch.reshape(x, (*batch_shape, *self.output_shape))
         obs_dist = td.Independent(td.Normal(mean, 1), len(self.output_shape))
         return obs_dist

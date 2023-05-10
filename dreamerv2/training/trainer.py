@@ -191,7 +191,6 @@ class Trainer(object):
         prev_rssm_state = self.RSSM._init_rssm_state(self.batch_size)
         prior, posterior = self.RSSM.rollout_observation(self.seq_len, embed, actions, nonterms, prev_rssm_state)
         post_modelstate = self.RSSM.get_model_state(posterior)               #t to t+seq_len
-        print("post_modelstate shape", post_modelstate.shape)
         obs_dist = self.ObsDecoder(post_modelstate[:-1])                     #t to t+seq_len-1  
         reward_dist = self.RewardDecoder(post_modelstate[:-1])               #t to t+seq_len-1  
         pcont_dist = self.DiscountModel(post_modelstate[:-1])                #t to t+seq_len-1   
